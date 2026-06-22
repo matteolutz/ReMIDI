@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
+  "name": "ReMIDI",
+  "authors": [
+    {
+      "name": "Matteo Lutz",
+      "email": "info@matteolutz.de",
+      "url": "https://matteolutz.de"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "fortyseveneffects/MIDI Library": "^5.0.2"
+  }
+}
