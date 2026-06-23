@@ -11,6 +11,7 @@ remidi::ReMIDIEEPROMSimClass EEPROM(eepromData, EEPROM_SIZE);
 
 #include <ReMIDIPresets.h>
 
+/** This test has to run first (it expects the preset list to be empty) */
 void test_ensurePresetListHeader()
 {
     remidi::ReMIDIPresetListHeader header = remidi::ensurePresetList();
@@ -19,6 +20,7 @@ void test_ensurePresetListHeader()
     TEST_ASSERT_EQUAL(-1, header.firstPresetAddress);
 }
 
+/** This test has to run second or before any preset with PC `42` is stored */
 void test_findInexistentPreset()
 {
     remidi::ReMIDILoadedPreset preset = remidi::findPresetForPCNumber(42);
@@ -96,7 +98,43 @@ void test_storePresetWithSamePCNumber()
     TEST_ASSERT_EQUAL(header.firstPresetAddress, loadedPreset.controlStatesAddress - sizeof(remidi::ReMIDIPreset));
 }
 
-void test_storeAndFindPresetsMultiple() {}
+/** Store another preset after PC 42 (depnds on `test_storeAndFindPresetSingle`) */
+void test_storeAndFindPresetsMultiple()
+{
+    remidi::ReMIDIPreset newPreset;
+    newPreset.pcNumber = 42;
+    newPreset.nextPresetAddress = -1;
+    newPreset.controlCount = 2; // same control count as the existing preset
+
+    remidi::ReMIDIControlState newControlStates[2];
+    newControlStates[0].controlId = 1;
+    newControlStates[0].state = 40;
+
+    newControlStates[1].controlId = 2;
+    newControlStates[1].state = 41;
+
+    bool storeSuccess = remidi::storePreset(newPreset, newControlStates);
+    TEST_ASSERT(storeSuccess);
+
+    remidi::ReMIDILoadedPreset loadedPreset = remidi::findPresetForPCNumber(69);
+    TEST_ASSERT(remidi::isPresetValid(loadedPreset.preset));
+    TEST_ASSERT_EQUAL(69, loadedPreset.preset.pcNumber);
+    TEST_ASSERT_EQUAL(2, loadedPreset.preset.controlCount);
+    TEST_ASSERT_NOT_EQUAL(-1, loadedPreset.preset.nextPresetAddress); // make sure, the new preset (42) was storedA
+
+    remidi::ReMIDILoadedPreset newLoadedPreset = remidi::findPresetForPCNumber(42);
+    TEST_ASSERT(remidi::isPresetValid(newLoadedPreset.preset));
+    TEST_ASSERT_EQUAL(42, newLoadedPreset.preset.pcNumber);
+    TEST_ASSERT_EQUAL(2, newLoadedPreset.preset.controlCount);
+    TEST_ASSERT_EQUAL(-1, newLoadedPreset.preset.nextPresetAddress);
+
+    remidi::ReMIDIControlState newLoadedControlStates[2];
+    remidi::loadPresetControlStates(newLoadedPreset, newLoadedControlStates);
+    TEST_ASSERT_EQUAL(newControlStates[0].controlId, newLoadedControlStates[0].controlId);
+    TEST_ASSERT_EQUAL(newControlStates[0].state, newLoadedControlStates[0].state);
+    TEST_ASSERT_EQUAL(newControlStates[1].controlId, newLoadedControlStates[1].controlId);
+    TEST_ASSERT_EQUAL(newControlStates[1].state, newLoadedControlStates[1].state);
+}
 
 int runUnityTests()
 {
@@ -106,6 +144,7 @@ int runUnityTests()
     RUN_TEST(test_findInexistentPreset);
     RUN_TEST(test_storeAndFindPresetSingle);
     RUN_TEST(test_storePresetWithSamePCNumber);
+    RUN_TEST(test_storeAndFindPresetsMultiple);
 
     return UNITY_END();
 }

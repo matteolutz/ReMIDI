@@ -123,6 +123,17 @@ namespace remidi
         EEPROM.get(lastPresetAddress, lastPreset);
 
         int nextPresetAddress = lastPresetAddress + sizeof(ReMIDIPreset) + lastPreset.controlCount * sizeof(ReMIDIControlState);
+
+        if (nextPresetAddress + sizeof(ReMIDIPreset) + preset.controlCount * sizeof(ReMIDIControlState) > EEPROM.length())
+        {
+            // not enough space in EEPROM to store the new preset
+            return -1;
+        }
+
+        // update the last preset's nextPresetAddress to point to the new preset
+        lastPreset.nextPresetAddress = nextPresetAddress;
+        EEPROM.put(lastPresetAddress, lastPreset);
+
         return nextPresetAddress;
     }
 
@@ -136,7 +147,7 @@ namespace remidi
         int nextPresetAddress = getNextPresetAddressFor(preset);
 
         // check for eeprom overflow
-        if (nextPresetAddress + sizeof(ReMIDIPreset) + preset.controlCount * sizeof(ReMIDIControlState) > EEPROM.length())
+        if (nextPresetAddress == -1)
         {
             // not enough space in EEPROM to store the new preset
             return false;
