@@ -6,6 +6,8 @@
 #include "ReMIDIControl.h"
 #include "ReMIDIPresets.h"
 
+#include "ReMIDIButton.h"
+
 namespace remidi
 {
 
@@ -13,9 +15,14 @@ namespace remidi
     class ReMIDI
     {
     public:
-        ReMIDI(MIDI_NAMESPACE::MidiInterface<Transport, _Settings, _Platform> &midiInterface, ReMIDIControlList controlList, uint8_t learnButton = NOT_A_PIN)
-            : m_Midi(midiInterface), m_ControlList(controlList), m_LearnButton(learnButton)
+        ReMIDI(MIDI_NAMESPACE::MidiInterface<Transport, _Settings, _Platform> &midiInterface, ReMIDIControlList controlList)
+            : m_Midi(midiInterface), m_ControlList(controlList)
         {
+        }
+
+        inline void setLearnButton(uint8_t pin, bool pullup = false)
+        {
+            m_LearnButton = ReMIDIButton(pin, pullup);
         }
 
         inline void begin(MIDI_NAMESPACE::Channel inChannel = 1);
@@ -34,7 +41,7 @@ namespace remidi
 
         ReMIDIControlList m_ControlList;
 
-        uint8_t m_LearnButton;
+        ReMIDIButton m_LearnButton = NOT_A_PIN;
     };
 
 }
