@@ -1,5 +1,8 @@
-#include <Arduino.h>
+#if ARDUINO
 #include <EEPROM.h>
+#else
+#include <ReMIDIEEPROMSim.h>
+#endif
 
 #include "ReMIDIPresets.h"
 

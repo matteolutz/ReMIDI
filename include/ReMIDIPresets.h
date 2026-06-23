@@ -1,8 +1,7 @@
 #ifndef REMIDI_PRESETS_H
 #define REMIDI_PRESETS_H
 
-#include <Arduino.h>
-
+#include "ReMIDITypes.h"
 #include "ReMIDIControl.h"
 
 #define REMIDI_PRESET_LIST_HEADER_MAGIC 0x524D4449 // "RMDI" in ASCII
@@ -18,8 +17,7 @@ namespace remidi
     {
         uint32_t magic = REMIDI_PRESET_LIST_HEADER_MAGIC; // Magic number to validate the header
 
-        uint8_t presetCount = 0;
-        uint8_t firstPresetAddress = 0;
+        int firstPresetAddress = -1;
     };
 
     /**

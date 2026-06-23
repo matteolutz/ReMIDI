@@ -18,12 +18,12 @@ namespace remidi
         }
 
         // initialize learn button pin if it's defined
-        if (m_LearnButton != NOT_A_PIN)
+        if (m_LearnButton.isValid())
         {
-            pinMode(m_LearnButton, INPUT);
+            m_LearnButton.begin();
 
             // when the learn button is held during startup, we clear the preset list in EEPROM
-            if (digitalRead(m_LearnButton) == HIGH)
+            if (m_LearnButton.isPressed())
             {
                 initializePresetList();
             }
@@ -47,7 +47,7 @@ namespace remidi
         }
 
         // check for learn button press
-        if (m_LearnButton != NOT_A_PIN && digitalRead(m_LearnButton) == HIGH)
+        if (m_LearnButton.isValid() && m_LearnButton.isPressed())
         {
             learn();
         }
@@ -56,7 +56,7 @@ namespace remidi
     template <class Transport, class Settings, class Platform>
     void ReMIDI<Transport, Settings, Platform>::learn()
     {
-        while (digitalRead(m_LearnButton) == HIGH)
+        while (m_LearnButton.isPressed())
         {
             if (!m_Midi.read())
                 continue;
@@ -81,7 +81,7 @@ namespace remidi
             storePreset(preset, controlStates);
 
             // Wait for the learn button to be released before allowing another preset to be learned
-            while (digitalRead(m_LearnButton) == HIGH)
+            while (m_LearnButton.isPressed())
                 ;
         }
     }

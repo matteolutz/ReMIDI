@@ -3,15 +3,13 @@
 namespace remidi
 {
 
-    ReMIDIControl createSwitchControl(uint8_t id, uint8_t inputPin, uint8_t outputPin, bool activeLow)
+    ReMIDIControl createSwitchControl(uint8_t id, ReMIDISwitchControlConfig config)
     {
         ReMIDIControl control;
         control.id = id;
         control.type = ReMIDIControlType::Switch;
 
-        control.config.switchConfig.inputPin = inputPin;
-        control.config.switchConfig.outputPin = outputPin;
-        control.config.switchConfig.activeLow = activeLow;
+        control.config.switchConfig = config;
 
         return control;
     }

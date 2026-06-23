@@ -1,7 +1,7 @@
 #ifndef REMIDI_CONTROL_H
 #define REMIDI_CONTROL_H
 
-#include <Arduino.h>
+#include "ReMIDITypes.h"
 
 namespace remidi
 {
@@ -17,26 +17,36 @@ namespace remidi
     {
         /** The input pin the actual switch is connected to */
         uint8_t inputPin;
+        bool inputPullup;
+
         /** The output pin, we want to control */
         uint8_t outputPin;
-
-        bool activeLow;
+        bool outputActiveLow;
 
         void begin() const
         {
-            pinMode(inputPin, INPUT);
+#if ARDUINO
+            pinMode(inputPin, inputPullup ? INPUT_PULLUP : INPUT);
+
             pinMode(outputPin, OUTPUT);
             digitalWrite(outputPin, LOW);
+#endif
         }
 
         void applyState(ControlStateValue state) const
         {
-            digitalWrite(outputPin, (!activeLow && state) || (activeLow && !state) ? HIGH : LOW);
+#if ARDUINO
+            digitalWrite(outputPin, (!outputActiveLow && state) || (outputActiveLow && !state) ? HIGH : LOW);
+#endif
         }
 
         ControlStateValue getState() const
         {
-            return digitalRead(inputPin) == HIGH ? 1 : 0;
+#if ARDUINO
+            return digitalRead(inputPin) == (inputPullup ? LOW : HIGH) ? 1 : 0;
+#else
+            return 0;
+#endif
         }
     };
 
@@ -139,8 +149,7 @@ namespace remidi
     }
 
     /* --------- Helper functions to create different types of controls --------- */
-    ReMIDIControl createSwitchControl(uint8_t id, uint8_t inputPin, uint8_t outputPin, bool activeLow = false);
-
+    ReMIDIControl createSwitchControl(uint8_t id, ReMIDISwitchControlConfig config);
 }
 
 #endif // REMIDI_CONTROL_H
