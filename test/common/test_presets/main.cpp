@@ -1,12 +1,7 @@
 #include <unity.h>
 
 #if !(ARDUINO)
-#include <ReMIDIEEPROMSim.h>
-
-#define EEPROM_SIZE 1024
-
-uint8_t eepromData[EEPROM_SIZE];
-remidi::ReMIDIEEPROMSimClass EEPROM(eepromData, EEPROM_SIZE);
+#include "../eepromsim.h"
 #endif
 
 #include <ReMIDIPresets.h>
