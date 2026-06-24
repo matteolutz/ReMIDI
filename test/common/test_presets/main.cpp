@@ -2,6 +2,8 @@
 
 #if !(ARDUINO)
 #include "../eepromsim.h"
+#else
+#include <Arduino.h>
 #endif
 
 #include <ReMIDIPresets.h>

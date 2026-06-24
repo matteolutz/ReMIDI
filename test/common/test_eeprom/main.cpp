@@ -2,6 +2,9 @@
 
 #if !(ARDUINO)
 #include "../eepromsim.h"
+#else
+#include <Arduino.h>
+#include <EEPROM.h>
 #endif
 
 template <typename T>
