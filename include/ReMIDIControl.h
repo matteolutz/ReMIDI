@@ -128,10 +128,10 @@ namespace remidi
         {
             for (size_t i = 0; i < size; ++i)
             {
-                ReMIDIControl &control = controls[i];
-                if (control.id == controlId)
+                ReMIDIControl *control = &controls[i];
+                if (control->id == controlId)
                 {
-                    return &control;
+                    return control;
                 }
             }
 
