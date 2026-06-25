@@ -33,7 +33,7 @@ Add the library to your project and include it from your sketch or source file:
 
 ```ini
 lib_deps =
-	fortyseveneffects/MIDI Library@^5.0.2
+	https://github.com/matteolutz/ReMIDI.git
 ```
 
 The library itself depends on [FortySevenEffects MIDI Library](https://github.com/FortySevenEffects/arduino_midi_library).
