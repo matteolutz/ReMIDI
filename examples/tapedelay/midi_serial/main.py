@@ -1,3 +1,7 @@
+"""
+This is a simple Python utilty to send MIDI Program Change message to an Arduino over a serial connection.
+"""
+
 import serial
 import threading
 import sys
