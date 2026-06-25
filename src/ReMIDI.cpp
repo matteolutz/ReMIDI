@@ -1,15 +1,17 @@
-#ifndef REMIDI_HPP
-#define REMIDI_HPP
+#include "ReMIDI.h"
 
 namespace remidi
 {
-    template <class Transport, class Settings, class Platform>
-    inline void ReMIDI<Transport, Settings, Platform>::begin(MIDI_NAMESPACE::Channel inChannel)
+    void ReMIDI::begin()
     {
+        // init debug logger
+        REMIDI_DEBUG_BEGIN();
+        REMIDI_DEBUG_LOG("Initializing ReMIDI...");
+
+        REMIDI_DEBUG_LOG("Ensuring preset list is valid...");
         ensurePresetList();
 
-        m_Midi.begin(inChannel);
-
+        REMIDI_DEBUG_LOG("Initializing controls...");
         // initialize controls
         for (size_t i = 0; i < m_ControlList.size; ++i)
         {
@@ -20,26 +22,35 @@ namespace remidi
         // initialize learn button pin if it's defined
         if (m_LearnButton.isValid())
         {
+            REMIDI_DEBUG_LOG("Initializing learn button...");
             m_LearnButton.begin();
 
             // when the learn button is held during startup, we clear the preset list in EEPROM
             if (m_LearnButton.isPressed())
             {
+                REMIDI_DEBUG_LOG("Learn button is held during startup, clearing preset list...");
                 initializePresetList();
+
+                REMIDI_DEBUG_LOG("Preset list cleared. Please release the learn button.");
+                while (m_LearnButton.isPressed())
+                    ;
             }
         }
+
+        REMIDI_DEBUG_LOG("There are ", getPresetCount(), " presets stored in EEPROM.");
+        REMIDI_DEBUG_LOG("Done! Let's rock n' roll!");
     }
 
-    template <class Transport, class Settings, class Platform>
-    void ReMIDI<Transport, Settings, Platform>::update()
+    void ReMIDI::update()
     {
+        ReMIDIMessage message = m_ReadMidiMessage();
         // check for new midi messages
-        if (m_Midi.read())
+        if (message.isValid())
         {
-            switch (m_Midi.getType())
+            switch (message.type)
             {
-            case MIDI_NAMESPACE::ProgramChange:
-                handleProgramChange();
+            case ReMIDIMessageType::ProgramChange:
+                handleProgramChange(message.data1);
                 break;
             default:
                 break;
@@ -53,18 +64,21 @@ namespace remidi
         }
     }
 
-    template <class Transport, class Settings, class Platform>
-    void ReMIDI<Transport, Settings, Platform>::learn()
+    void ReMIDI::learn()
     {
+        REMIDI_DEBUG_LOG("Learn button pressed, waiting for ProgramChange message...");
         while (m_LearnButton.isPressed())
         {
-            if (!m_Midi.read())
+            ReMIDIMessage message = m_ReadMidiMessage();
+            if (!message.isValid())
                 continue;
 
-            if (m_Midi.getType() != MIDI_NAMESPACE::ProgramChange)
+            if (message.type != ReMIDIMessageType::ProgramChange)
                 continue;
 
-            uint8_t pcNumber = m_Midi.getData1();
+            uint8_t pcNumber = message.data1;
+
+            REMIDI_DEBUG_LOG("Learning preset for ProgramChange: ", pcNumber);
 
             ReMIDIControlState controlStates[m_ControlList.size];
             for (size_t i = 0; i < m_ControlList.size; ++i)
@@ -72,6 +86,8 @@ namespace remidi
                 ReMIDIControl &control = m_ControlList.controls[i];
                 controlStates[i].controlId = control.id;
                 controlStates[i].state = control.getState();
+
+                REMIDI_DEBUG_LOG("\tControl ", control.id, " state: ", controlStates[i].state);
             }
 
             ReMIDIPreset preset;
@@ -84,12 +100,14 @@ namespace remidi
             while (m_LearnButton.isPressed())
                 ;
         }
+
+        REMIDI_DEBUG_LOG("Done learning presets!");
     }
 
-    template <class Transport, class Settings, class Platform>
-    void ReMIDI<Transport, Settings, Platform>::handleProgramChange()
+    void ReMIDI::handleProgramChange(uint8_t pcNumber)
     {
-        uint8_t pcNumber = m_Midi.getData1();
+        REMIDI_DEBUG_LOG("Received ProgramChange: ", pcNumber);
+
         ReMIDILoadedPreset preset = findPresetForPCNumber(pcNumber);
 
         if (!isPresetValid(preset.preset))
@@ -100,9 +118,10 @@ namespace remidi
         applyPreset(preset);
     }
 
-    template <class Transport, class Settings, class Platform>
-    void ReMIDI<Transport, Settings, Platform>::applyPreset(const ReMIDILoadedPreset &preset)
+    void ReMIDI::applyPreset(const ReMIDILoadedPreset &preset)
     {
+        REMIDI_DEBUG_LOG("Applying preset for ProgramChange: ", preset.preset.pcNumber);
+
         ReMIDIControlState controlStates[preset.preset.controlCount];
         loadPresetControlStates(preset, controlStates);
 
@@ -116,9 +135,8 @@ namespace remidi
                 continue;
             }
 
+            REMIDI_DEBUG_LOG("\tApplying control ", controlState.controlId, ": ", controlState.state);
             control->applyState(controlState.state);
         }
     }
 }
-
-#endif // REMIDI_HPP

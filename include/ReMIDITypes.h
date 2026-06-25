@@ -9,4 +9,51 @@
 typedef __SIZE_TYPE__ size_t;
 #endif
 
+#ifdef REMIDI_DEBUG
+
+#ifndef REMIDI_DEBUG_SERIAL
+#error "REMIDI_DEBUG_SERIAL must be defined when REMIDI_DEBUG is defined"
+#endif
+
+#ifndef REMIDI_DEBUG_BAUD
+#define REMIDI_DEBUG_BAUD 115200
+#endif
+
+template <typename T>
+inline void log_impl(const T &value)
+{
+    REMIDI_DEBUG_SERIAL.print(value);
+}
+
+template <typename T, typename... Args>
+inline void log_impl(const T &value, const Args &...args)
+{
+    REMIDI_DEBUG_SERIAL.print(value);
+    log_impl(args...);
+}
+
+#define REMIDI_DEBUG_BEGIN() REMIDI_DEBUG_SERIAL.begin(REMIDI_DEBUG_BAUD)
+
+#define REMIDI_DEBUG_LOG(...)      \
+    do                             \
+    {                              \
+        Serial.print("[ReMIDI] "); \
+        log_impl(__VA_ARGS__);     \
+        Serial.println();          \
+    } while (0)
+
+#define REMIDI_DEBUG_TRACE(...)          \
+    do                                   \
+    {                                    \
+        Serial.print("[ReMIDI TRACE] "); \
+        log_impl(__VA_ARGS__);           \
+        Serial.println();                \
+    } while (0)
+
+#else
+#define REMIDI_DEBUG_BEGIN()
+#define REMIDI_DEBUG_PRINT(x)
+#define REMIDI_DEBUG_PRINTLN(x)
+#endif
+
 #endif // REMIDI_TYPES_H

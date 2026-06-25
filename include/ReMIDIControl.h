@@ -43,7 +43,8 @@ namespace remidi
         ControlStateValue getState() const
         {
 #if ARDUINO
-            return digitalRead(inputPin) == (inputPullup ? LOW : HIGH) ? 1 : 0;
+            int readResult = digitalRead(inputPin);
+            return readResult == (inputPullup ? LOW : HIGH) ? 1 : 0;
 #else
             return 0;
 #endif

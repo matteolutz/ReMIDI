@@ -29,6 +29,25 @@ namespace remidi
         return header;
     }
 
+    uint16_t getPresetCount()
+    {
+        ReMIDIPresetListHeader header = ensurePresetList();
+
+        int presetAddress = header.firstPresetAddress;
+        uint16_t count = 0;
+
+        while (presetAddress != -1)
+        {
+            ReMIDIPreset preset;
+            EEPROM.get(presetAddress, preset);
+
+            ++count;
+            presetAddress = preset.nextPresetAddress;
+        }
+
+        return count;
+    }
+
     bool isPresetValid(const ReMIDIPreset &preset)
     {
         return preset.pcNumber != -1;
@@ -152,6 +171,9 @@ namespace remidi
             // not enough space in EEPROM to store the new preset
             return false;
         }
+
+        size_t totalPresetSize = sizeof(ReMIDIPreset) + preset.controlCount * sizeof(ReMIDIControlState);
+        REMIDI_DEBUG_TRACE("The size of the EEPROM allows for ", EEPROM.length() / totalPresetSize, " presets like the current one");
 
         // Store the new preset at newPresetAddress
         EEPROM.put(nextPresetAddress, preset);

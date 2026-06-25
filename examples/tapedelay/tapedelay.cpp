@@ -2,6 +2,7 @@
 #include <SoftwareSerial.h>
 
 #include <MIDI.h>
+
 #include <ReMIDI.h>
 
 /* ----------------------------- Pin Definitions ---------------------------- */
@@ -18,6 +19,8 @@
 
 #define LEARN_BUTTON_PIN 7
 #define LEARN_BUTTON_PULLUP true
+
+#define MIDI_IN_CHANNEL 1
 /* -------------------------------------------------------------------------- */
 
 /* ------------ Forward declaration for setup and loop functions ------------ */
@@ -25,9 +28,14 @@ void setup();
 void loop();
 /* -------------------------------------------------------------------------- */
 
-using MidiTransport = MIDI_NAMESPACE::SerialMIDI<SoftwareSerial>;
 SoftwareSerial midiSerial(MIDI_RX_PIN, MIDI_TX_PIN);
-MIDI_NAMESPACE::MidiInterface<MidiTransport> MIDI((MidiTransport &)midiSerial);
+MIDI_CREATE_INSTANCE(SoftwareSerial, midiSerial, MIDI);
+
+/**
+ * This is the callback for ReMIDI to read MIDI messages
+ * This allows for BYOM (Bring Your Own MIDI), where the user can choose how to receive MIDI messages.
+ */
+ReMIDIMessage readMidiMessage();
 
 remidi::ReMIDIControl controls[] = {
     // Echo
@@ -38,10 +46,12 @@ remidi::ReMIDIControl controls[] = {
 
 remidi::ReMIDIControlList controlList = remidi::createControlList(controls);
 
-remidi::ReMIDI<MidiTransport> reMIDI(MIDI, controlList);
+remidi::ReMIDI reMIDI(readMidiMessage, controlList);
 
 void setup()
 {
+    MIDI.begin(MIDI_IN_CHANNEL);
+
     reMIDI.setLearnButton(LEARN_BUTTON_PIN, LEARN_BUTTON_PULLUP);
     reMIDI.begin();
 }
@@ -49,4 +59,28 @@ void setup()
 void loop()
 {
     reMIDI.update();
+}
+
+ReMIDIMessage readMidiMessage()
+{
+#if REMIDI_SERIAL_MIDI_TEST
+    if (Serial.available() > 0)
+    {
+        uint8_t pcByte = Serial.read();
+        return ReMIDIMessage::createProgramChangeMessage(pcByte);
+    };
+
+#else
+    if (MIDI.read())
+    {
+        ReMIDIMessage message;
+        message.type = static_cast<ReMIDIMessageType>(MIDI.getType());
+        message.data1 = MIDI.getData1();
+        message.data2 = MIDI.getData2();
+
+        return message;
+    }
+#endif
+
+    return ReMIDIMessage::createInvalidMessage();
 }

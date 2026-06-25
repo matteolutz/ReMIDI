@@ -30,6 +30,8 @@ namespace remidi
      */
     ReMIDIPresetListHeader ensurePresetList();
 
+    uint16_t getPresetCount();
+
     struct __attribute__((packed)) ReMIDIPreset
     {
         /** The address of the next preset in EEPROM */
@@ -51,8 +53,7 @@ namespace remidi
         int controlStatesAddress; // The EEPROM address where the control states for this preset are stored
     };
 
-    bool
-    isPresetValid(const ReMIDIPreset &preset);
+    bool isPresetValid(const ReMIDIPreset &preset);
 
     ReMIDILoadedPreset findPresetForPCNumber(uint8_t pcNumber);
 
