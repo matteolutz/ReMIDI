@@ -25,6 +25,11 @@ namespace remidi
             REMIDI_DEBUG_LOG("Initializing learn button...");
             m_LearnButton.begin();
 
+#if ARDUINO
+            REMIDI_DEBUG_LOG("Waiting for 1s to allow user to hold learn button for clearing preset list...");
+            delay(1000);
+#endif
+
             // when the learn button is held during startup, we clear the preset list in EEPROM
             if (m_LearnButton.isPressed())
             {
