@@ -32,7 +32,13 @@ inline void log_impl(const T &value, const Args &...args)
     log_impl(args...);
 }
 
-#define REMIDI_DEBUG_BEGIN() REMIDI_DEBUG_SERIAL.begin(REMIDI_DEBUG_BAUD)
+#define REMIDI_DEBUG_BEGIN()                          \
+    do                                                \
+    {                                                 \
+        REMIDI_DEBUG_SERIAL.begin(REMIDI_DEBUG_BAUD); \
+        while (!REMIDI_DEBUG_SERIAL)                  \
+            ;                                         \
+    } while (0)
 
 #define REMIDI_DEBUG_LOG(...)      \
     do                             \
