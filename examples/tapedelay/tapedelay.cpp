@@ -6,7 +6,7 @@
 #include <ReMIDI.h>
 
 /* ----------------------------- Pin Definitions ---------------------------- */
-#define MIDI_RX_PIN 2
+#define MIDI_RX_PIN 14
 #define MIDI_TX_PIN 3 // will be unused, but required for SoftwareSerial constructor
 
 #define ECHO_CONTROL_INPUT_PIN 4
