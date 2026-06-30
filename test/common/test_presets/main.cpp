@@ -13,7 +13,7 @@ void test_ensurePresetListHeader()
 {
     remidi::ReMIDIPresetListHeader header = remidi::ensurePresetList();
 
-    TEST_ASSERT_EQUAL(REMIDI_PRESET_LIST_HEADER_MAGIC, header.magic);
+    TEST_ASSERT_EQUAL(REMIDI__PRESET_LIST_HEADER_MAGIC, header.magic);
     TEST_ASSERT_EQUAL(-1, header.firstPresetAddress);
 }
 
