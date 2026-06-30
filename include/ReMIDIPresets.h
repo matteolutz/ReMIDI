@@ -4,7 +4,7 @@
 #include "ReMIDITypes.h"
 #include "ReMIDIControl.h"
 
-#define REMIDI_PRESET_LIST_HEADER_MAGIC 0x524D4449 // "RMDI" in ASCII
+#define REMIDI__PRESET_LIST_HEADER_MAGIC 0x524D4449 // "RMDI" in ASCII
 
 namespace remidi
 {
@@ -15,7 +15,7 @@ namespace remidi
      * */
     struct __attribute__((packed)) ReMIDIPresetListHeader
     {
-        uint32_t magic = REMIDI_PRESET_LIST_HEADER_MAGIC; // Magic number to validate the header
+        uint32_t magic = REMIDI__PRESET_LIST_HEADER_MAGIC; // Magic number to validate the header
 
         int firstPresetAddress = -1;
     };
@@ -49,8 +49,11 @@ namespace remidi
 
     struct ReMIDILoadedPreset
     {
+        /** The actual preset */
         ReMIDIPreset preset;
-        int controlStatesAddress; // The EEPROM address where the control states for this preset are stored
+
+        /** The EEPROM address where the control states for this preset are stored */
+        int controlStatesAddress;
     };
 
     bool isPresetValid(const ReMIDIPreset &preset);

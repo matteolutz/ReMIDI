@@ -15,7 +15,7 @@ namespace remidi
         // initialize controls
         for (size_t i = 0; i < m_ControlList.size; ++i)
         {
-            ReMIDIControl &control = m_ControlList.controls[i];
+            const ReMIDIControl &control = m_ControlList.controls[i];
             control.begin();
         }
 
@@ -88,7 +88,7 @@ namespace remidi
             ReMIDIControlState controlStates[m_ControlList.size];
             for (size_t i = 0; i < m_ControlList.size; ++i)
             {
-                ReMIDIControl &control = m_ControlList.controls[i];
+                const ReMIDIControl &control = m_ControlList.controls[i];
                 controlStates[i].controlId = control.id;
                 controlStates[i].state = control.getState();
 
@@ -132,9 +132,9 @@ namespace remidi
 
         for (size_t i = 0; i < preset.preset.controlCount; ++i)
         {
-            ReMIDIControlState &controlState = controlStates[i];
+            const ReMIDIControlState &controlState = controlStates[i];
 
-            ReMIDIControl *control = m_ControlList.findControlById(controlState.controlId);
+            ReMIDIControl const *control = m_ControlList.findControlById(controlState.controlId);
             if (control == nullptr)
             {
                 continue;

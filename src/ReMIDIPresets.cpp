@@ -20,7 +20,7 @@ namespace remidi
         ReMIDIPresetListHeader header;
         EEPROM.get(0, header);
 
-        if (header.magic != REMIDI_PRESET_LIST_HEADER_MAGIC)
+        if (header.magic != REMIDI__PRESET_LIST_HEADER_MAGIC)
         {
             // this means, the preset list header is not valid
             return initializePresetList();
@@ -77,7 +77,7 @@ namespace remidi
 
         // If we reach this point, it means we didn't find a valid preset for the given PC number
         // We can return an invalid preset to indicate this
-        ReMIDILoadedPreset invalidPreset;
+        ReMIDILoadedPreset invalidPreset = {};
         return invalidPreset;
     }
 

@@ -8,7 +8,7 @@ namespace remidi
     class ReMIDIButton
     {
     public:
-        ReMIDIButton(uint8_t pin, bool pullup = false)
+        explicit ReMIDIButton(uint8_t pin, bool pullup = false)
             : m_Pin(pin), m_Pullup(pullup)
         {
         }

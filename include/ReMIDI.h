@@ -38,7 +38,7 @@ namespace remidi
         ReMIDIMessage (*m_ReadMidiMessage)();
         ReMIDIControlList m_ControlList;
 
-        ReMIDIButton m_LearnButton = NOT_A_PIN;
+        ReMIDIButton m_LearnButton = ReMIDIButton(NOT_A_PIN);
     };
 
 }

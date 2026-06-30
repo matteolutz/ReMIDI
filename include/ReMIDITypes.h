@@ -20,16 +20,16 @@ typedef __SIZE_TYPE__ size_t;
 #endif
 
 template <typename T>
-inline void log_impl(const T &value)
+inline void remidi__log_impl(const T &value)
 {
     REMIDI_DEBUG_SERIAL.print(value);
 }
 
 template <typename T, typename... Args>
-inline void log_impl(const T &value, const Args &...args)
+inline void remidi__log_impl(const T &value, const Args &...args)
 {
     REMIDI_DEBUG_SERIAL.print(value);
-    log_impl(args...);
+    remidi__log_impl(args...);
 }
 
 #define REMIDI_DEBUG_BEGIN()                          \
@@ -40,19 +40,19 @@ inline void log_impl(const T &value, const Args &...args)
             ;                                         \
     } while (0)
 
-#define REMIDI_DEBUG_LOG(...)      \
-    do                             \
-    {                              \
-        Serial.print("[ReMIDI] "); \
-        log_impl(__VA_ARGS__);     \
-        Serial.println();          \
+#define REMIDI_DEBUG_LOG(...)          \
+    do                                 \
+    {                                  \
+        Serial.print("[ReMIDI] ");     \
+        remidi__log_impl(__VA_ARGS__); \
+        Serial.println();              \
     } while (0)
 
 #define REMIDI_DEBUG_TRACE(...)          \
     do                                   \
     {                                    \
         Serial.print("[ReMIDI TRACE] "); \
-        log_impl(__VA_ARGS__);           \
+        remidi__log_impl(__VA_ARGS__);   \
         Serial.println();                \
     } while (0)
 
