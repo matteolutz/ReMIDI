@@ -7,6 +7,8 @@
 #else
 #include <inttypes.h>
 typedef __SIZE_TYPE__ size_t;
+
+#define NOT_A_PIN 0
 #endif
 
 #ifdef REMIDI_DEBUG
