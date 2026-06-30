@@ -58,8 +58,8 @@ inline void log_impl(const T &value, const Args &...args)
 
 #else
 #define REMIDI_DEBUG_BEGIN()
-#define REMIDI_DEBUG_PRINT(x)
-#define REMIDI_DEBUG_PRINTLN(x)
+#define REMIDI_DEBUG_LOG(...)
+#define REMIDI_DEBUG_TRACE(...)
 #endif
 
 #endif // REMIDI_TYPES_H
