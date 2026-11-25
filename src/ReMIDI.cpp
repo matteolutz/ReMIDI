@@ -88,19 +88,30 @@ namespace remidi
 
             REMIDI_DEBUG_LOG("Learning preset for ProgramChange: ", pcNumber);
 
+            // there will be at max m_ControlList.size control states to store in the preset
             ReMIDIControlState controlStates[m_ControlList.size];
+
+            // we keep track of how many controls we actually store in the preset,
+            // since not all controls may be included in the preset
+            uint8_t controlCount = 0;
+
             for (size_t i = 0; i < m_ControlList.size; ++i)
             {
                 const ReMIDIControl &control = m_ControlList.controls[i];
-                controlStates[i].controlId = control.id;
-                controlStates[i].state = control.getState();
 
-                REMIDI_DEBUG_LOG("\tControl ", control.id, " state: ", controlStates[i].state);
+                if (!control.includeInPreset())
+                    continue;
+
+                controlStates[controlCount].controlId = control.id;
+                controlStates[controlCount].state = control.getState();
+                ++controlCount;
+
+                REMIDI_DEBUG_LOG("\tControl ", control.id, " state: ", controlStates[controlCount].state);
             }
 
             ReMIDIPreset preset;
             preset.pcNumber = pcNumber;
-            preset.controlCount = m_ControlList.size;
+            preset.controlCount = controlCount;
 
             storePreset(preset, controlStates);
 

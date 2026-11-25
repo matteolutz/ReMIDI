@@ -57,6 +57,8 @@ namespace remidi
         void (*begin)();
         void (*applyState)(ControlStateValue state);
         ControlStateValue (*getState)();
+
+        bool includeInPreset;
     };
 
     struct ReMIDIControl
@@ -135,6 +137,20 @@ namespace remidi
                 return 0;
             }
         }
+
+        /** Whether the control should be included when learning a new preset */
+        bool includeInPreset() const
+        {
+            switch (type)
+            {
+            case ReMIDIControlType::Switch:
+                return true; // Switch controls are included in presets
+            case ReMIDIControlType::Custom:
+                return config.customConfig.includeInPreset;
+            default:
+                return false;
+            }
+        }
     };
 
     struct __attribute__((packed)) ReMIDIControlState
@@ -181,7 +197,7 @@ namespace remidi
 
     /* --------- Helper functions to create different types of controls --------- */
     ReMIDIControl createSwitchControl(uint8_t id, ReMIDISwitchControlConfig config);
-    ReMIDIControl createCustomControl(uint8_t id, void (*begin)(), void (*applyState)(ControlStateValue state), ControlStateValue (*getState)());
+    ReMIDIControl createCustomControl(uint8_t id, void (*begin)(), void (*applyState)(ControlStateValue state), ControlStateValue (*getState)(), bool includeInPreset = false);
 }
 
 #endif // REMIDI_CONTROL_H

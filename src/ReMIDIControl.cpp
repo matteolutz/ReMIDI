@@ -14,13 +14,17 @@ namespace remidi
         return control;
     }
 
-    ReMIDIControl createCustomControl(uint8_t id, void (*begin)(), void (*applyState)(ControlStateValue state), ControlStateValue (*getState)())
+    ReMIDIControl createCustomControl(uint8_t id, void (*begin)(), void (*applyState)(ControlStateValue state), ControlStateValue (*getState)(), bool includeInPreset)
     {
         ReMIDIControl control;
         control.id = id;
         control.type = ReMIDIControlType::Custom;
 
-        control.config.customConfig = ReMIDICustomControlConfig{.begin = begin, .applyState = applyState, .getState = getState};
+        control.config.customConfig = ReMIDICustomControlConfig{
+            .begin = begin,
+            .applyState = applyState,
+            .getState = getState,
+            .includeInPreset = includeInPreset};
 
         return control;
     }
