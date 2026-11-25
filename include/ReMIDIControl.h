@@ -10,7 +10,8 @@ namespace remidi
 
     enum class ReMIDIControlType : uint8_t
     {
-        Switch
+        Switch,
+        Custom
     };
 
     struct ReMIDISwitchControlConfig
@@ -51,6 +52,13 @@ namespace remidi
         }
     };
 
+    struct ReMIDICustomControlConfig
+    {
+        void (*begin)();
+        void (*applyState)(ControlStateValue state);
+        ControlStateValue (*getState)();
+    };
+
     struct ReMIDIControl
     {
         /**
@@ -68,6 +76,7 @@ namespace remidi
         union
         {
             ReMIDISwitchControlConfig switchConfig;
+            ReMIDICustomControlConfig customConfig;
             // Future control types can be added here with their respective configurations
         } config;
 
@@ -77,6 +86,12 @@ namespace remidi
             {
             case ReMIDIControlType::Switch:
                 config.switchConfig.begin();
+                break;
+            case ReMIDIControlType::Custom:
+                if (config.customConfig.begin)
+                {
+                    config.customConfig.begin();
+                }
                 break;
             default:
                 break;
@@ -90,6 +105,12 @@ namespace remidi
             case ReMIDIControlType::Switch:
                 config.switchConfig.applyState(state);
                 break;
+            case ReMIDIControlType::Custom:
+                if (config.customConfig.applyState)
+                {
+                    config.customConfig.applyState(state);
+                }
+                break;
             default:
                 break;
             }
@@ -101,6 +122,15 @@ namespace remidi
             {
             case ReMIDIControlType::Switch:
                 return config.switchConfig.getState();
+            case ReMIDIControlType::Custom:
+                if (config.customConfig.getState)
+                {
+                    return config.customConfig.getState();
+                }
+                else
+                {
+                    return 0;
+                }
             default:
                 return 0;
             }
@@ -151,6 +181,7 @@ namespace remidi
 
     /* --------- Helper functions to create different types of controls --------- */
     ReMIDIControl createSwitchControl(uint8_t id, ReMIDISwitchControlConfig config);
+    ReMIDIControl createCustomControl(uint8_t id, void (*begin)(), void (*applyState)(ControlStateValue state), ControlStateValue (*getState)());
 }
 
 #endif // REMIDI_CONTROL_H
