@@ -57,6 +57,9 @@ namespace remidi
             case ReMIDIMessageType::ProgramChange:
                 handleProgramChange(message.data1);
                 break;
+            case ReMIDIMessageType::ControlChange:
+                handleControlChange(message.data1, message.data2);
+                break;
             default:
                 break;
             }
@@ -107,6 +110,29 @@ namespace remidi
         }
 
         REMIDI_DEBUG_LOG("Done learning presets!");
+    }
+
+    void ReMIDI::handleControlChange(uint8_t ccNumber, uint8_t ccValue)
+    {
+        REMIDI_DEBUG_LOG("Received ControlChange: ", ccNumber, " with value: ", ccValue);
+
+        ReMIDICCMapping *mapping = m_CCMappingList.findMappingByCCNumber(ccNumber);
+        if (mapping == nullptr)
+        {
+            REMIDI_DEBUG_LOG("No mapping found for CC number: ", ccNumber);
+            return;
+        }
+
+        ReMIDIControl *control = m_ControlList.findControlById(mapping->controlId);
+        if (control == nullptr)
+        {
+            REMIDI_DEBUG_LOG("No control found for control ID: ", mapping->controlId);
+            return;
+        }
+
+        ControlStateValue mappedValue = mapping->getValue(ccValue);
+        REMIDI_DEBUG_LOG("Applying mapped value: ", mappedValue, " to control ID: ", mapping->controlId);
+        control->applyState(mappedValue);
     }
 
     void ReMIDI::handleProgramChange(uint8_t pcNumber)
